@@ -61,6 +61,7 @@
         // Constructor to initialize a Pokemon with its attributes
         public Pokemon(string name, PokemonType type, int health, int attack, int defense, int speed, List<Move> moves)
         {
+            
             Name = name;
             Type = type;
             Health = health;
@@ -76,6 +77,7 @@
         // Method to calculate damage taken by the Pokemon based on the attacker's type and stats
         public void takeDamage(int damage)
         {
+            // Reduce health by the damage taken, ensuring it doesn't go below 0
             Health -= damage;
             if (Health < 0) Health = 0;
         }
@@ -93,21 +95,33 @@
 
     }
 
-
-
-
-
+    // Main program class to set up the Pokemon battle scenario
     class Program
     { static void Main()
         {
             var Allpokemon = new List<Pokemon>
-            {
+            { 
+                // Creating instances of Pokemon with their attributes and moves
+
                 new Pokemon("Charmander", PokemonType.Fire, 100, 52, 43, 65, new List<Move>
                 {
                     new Move("Ember", 40, PokemonType.Fire),
                     new Move("Scratch", 40, PokemonType.Normal)
                 }),
+
+                new Pokemon("Squirtle", PokemonType.Water, 44, 48, 65, 43, new List<Move>
+                {
+                    new Move("Water Gun", 40, PokemonType.Water),
+                    new Move("Tackle", 40, PokemonType.Normal)
+                }),
+
+                new Pokemon("Bulbasaur", PokemonType.Grass, 45, 49, 49, 45, new List<Move>
+                {
+                    new Move("Vine Whip", 45, PokemonType.Grass),
+                    new Move("Tackle", 40, PokemonType.Normal)
+                })
             };
+
         }
     }
 }
