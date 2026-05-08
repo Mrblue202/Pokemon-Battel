@@ -1,13 +1,15 @@
-﻿namespace PokemonBattel
+﻿using System;
+using System.Collections.Generic;
+
+namespace PokemonBattel
 {
-    // Static class to represent the type effectiveness chart for Pokemon battles
+    // Static class for type effectiveness
     public static class TypChart
     {
         public static double GetEffectiveness(PokemonType attacker, PokemonType defender)
         {
             return (attacker, defender) switch
             {
-                // Super effective/ not effective combinations
                 (PokemonType.Fire, PokemonType.Grass) => 2.0,
                 (PokemonType.Water, PokemonType.Fire) => 2.0,
                 (PokemonType.Grass, PokemonType.Water) => 2.0,
@@ -22,13 +24,13 @@
         }
     }
 
-    // Class to represent a move that a Pokemon can use in battle
+    // Move class
     public class Move
     {
-        public string Name { get; private set; }
+        public string Name;
         public int Power { get; private set; }
         public PokemonType Type { get; private set; }
-        // Constructor to initialize a move with its name, power, and type
+
         public Move(string name, int power, PokemonType type)
         {
             Name = name;
@@ -37,92 +39,129 @@
         }
     }
 
+    // Enum for Types
+    public enum PokemonType { Fire, Water, Grass, Normal }
 
-    // Enum to represent different Pokemon types
-    public enum PokemonType
-    {
-        Fire,
-        Water,
-        Grass,
-        Normal
-    }
-
-    // Class to represent a Pokemon with its attributes and behaviors
+    // Pokemon class
     public class Pokemon
     {
-        public string Name { get; set; }
-        public PokemonType Type { get; set; }
-        public int Health { get; set; }
-        public int attack { get; set; }
-        public int defense { get; set; }
-        public int speed { get; set; }
-        public List<Move> Moves { get; set; } 
+        public string Name;
+        public PokemonType Type;
+        public int Health;
+        public int attack;
+        public int Defense;
+        public int speed;
+        public List<Move> Moves { get; set; }
 
-        // Constructor to initialize a Pokemon with its attributes
-        public Pokemon(string name, PokemonType type, int health, int attack, int defense, int speed, List<Move> moves)
+        public Pokemon(string name, PokemonType type, int health, int newAttack, int defense, int speed, List<Move> moves)
         {
-            
             Name = name;
             Type = type;
             Health = health;
-            this.attack = attack;
-            this.defense = defense;
+            attack = newAttack;
+            Defense = defense;
             this.speed = speed;
             Moves = moves;
         }
 
-        // Property to check if the Pokemon has fainted (health is 0 or less)
         public bool Isfainted => Health <= 0;
 
-        // Method to calculate damage taken by the Pokemon based on the attacker's type and stats
         public void takeDamage(int damage)
         {
-            // Reduce health by the damage taken, ensuring it doesn't go below 0
             Health -= damage;
             if (Health < 0) Health = 0;
         }
 
-        
-
-        public int CalculateDamage(Pokemon attacker)
+        public int CalculateDamage(Pokemon attacker, Move moveUsed)
         {
-            double baseDamage = (attacker.attack - this.defense) + 10; // Basic damage 
+            // Simplified calculation: (Attacker Attack + Move Power) - Defender Defense
+            double baseDamage = (attacker.attack + moveUsed.Power) - this.Defense;
+            if (baseDamage < 5) baseDamage = 5; // Ensure at least some damage is done
 
-            double typeEffectiveness = TypChart.GetEffectiveness(attacker.Type, this.Type);
+            double typeEffectiveness = TypChart.GetEffectiveness(moveUsed.Type, this.Type);
 
             return (int)(baseDamage * typeEffectiveness);
         }
-
     }
 
-    // Main program class to set up the Pokemon battle scenario
+    // Main Program
     class Program
-    { static void Main()
+    {
+        static void Main()
         {
             var Allpokemon = new List<Pokemon>
-            { 
-                // Creating instances of Pokemon with their attributes and moves
-
+            {
                 new Pokemon("Charmander", PokemonType.Fire, 100, 52, 43, 65, new List<Move>
                 {
                     new Move("Ember", 40, PokemonType.Fire),
                     new Move("Scratch", 40, PokemonType.Normal)
                 }),
 
-                new Pokemon("Squirtle", PokemonType.Water, 44, 48, 65, 43, new List<Move>
+                new Pokemon("Squirtle", PokemonType.Water, 100, 48, 65, 43, new List<Move>
                 {
                     new Move("Water Gun", 40, PokemonType.Water),
                     new Move("Tackle", 40, PokemonType.Normal)
                 }),
 
-                new Pokemon("Bulbasaur", PokemonType.Grass, 45, 49, 49, 45, new List<Move>
+                new Pokemon("Bulbasaur", PokemonType.Grass, 100, 49, 49, 45, new List<Move>
                 {
                     new Move("Vine Whip", 45, PokemonType.Grass),
                     new Move("Tackle", 40, PokemonType.Normal)
                 })
             };
 
+            // Choose your Pokemon
+            Console.WriteLine("Welcome to Battle! Choose your Pokemon (type the number):");
+            for (int i = 0; i < Allpokemon.Count; i++)
+            {
+                Console.WriteLine($"{i}: {Allpokemon[i].Name}");
+            }
+            int choice = int.Parse(Console.ReadLine());
+            Pokemon player = Allpokemon[choice];
+
+            // Choose random opponent
+            Random rnd = new Random();
+            Pokemon enemy = Allpokemon[rnd.Next(0, Allpokemon.Count)];
+            Console.WriteLine($"\nYou chose {player.Name}! You are fighting {enemy.Name}!");
+
+            // Battle loop
+            while (!player.Isfainted && !enemy.Isfainted)
+            {
+                Console.WriteLine("\n--- NEW TURN ---");
+                Console.WriteLine($"{player.Name} HP: {player.Health} | {enemy.Name} HP: {enemy.Health}");
+
+                // Player picks a move
+                Console.WriteLine("Choose a move:");
+                for (int i = 0; i < player.Moves.Count; i++)
+                {
+                    Console.WriteLine($"{i}: {player.Moves[i].Name}");
+                }
+                int moveChoice = int.Parse(Console.ReadLine());
+                Move playerMove = player.Moves[moveChoice];
+
+                // Player attacks enemy
+                int damageToEnemy = enemy.CalculateDamage(player, playerMove);
+                enemy.takeDamage(damageToEnemy);
+                Console.WriteLine($"{player.Name} used {playerMove.Name} and did {damageToEnemy} damage!");
+
+                if (enemy.Isfainted) break;
+
+                // Enemy attacks player simple AI always picks the first move
+                Move enemyMove = enemy.Moves[0];
+                int damageToPlayer = player.CalculateDamage(enemy, enemyMove);
+                player.takeDamage(damageToPlayer);
+                Console.WriteLine($"{enemy.Name} used {enemyMove.Name} and did {damageToPlayer} damage!");
+            }
+
+            // Win/Loss message
+            if (player.Isfainted)
+            {
+                Console.WriteLine("\nYour Pokemon fainted! You lost.");
+            }
+            else
+            {
+                Console.WriteLine("\nThe enemy fainted! You are the winner!");
+            }
         }
     }
 }
-
