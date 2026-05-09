@@ -127,7 +127,7 @@ namespace PokemonBattel
             // Battle loop
             while (!player.Isfainted && !enemy.Isfainted)
             {
-                Console.Clear();
+              
                 Console.WriteLine("\n--- NEW TURN ---");
                 Console.WriteLine($"{player.Name} HP: {player.Health} | {enemy.Name} HP: {enemy.Health}");
 
@@ -152,6 +152,7 @@ namespace PokemonBattel
                 int damageToPlayer = player.CalculateDamage(enemy, enemyMove);
                 player.takeDamage(damageToPlayer);
                 Console.WriteLine($"{enemy.Name} used {enemyMove.Name} and did {damageToPlayer} damage!");
+                Console.Clear();
             }
 
             // Win/Loss message
