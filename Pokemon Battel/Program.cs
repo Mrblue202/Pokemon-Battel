@@ -119,13 +119,14 @@ namespace PokemonBattel
             int choice = int.Parse(Console.ReadLine());
             Pokemon player = Allpokemon[choice];
 
+            Console.Clear();
+
             // Choose random opponent
             Random rnd = new Random();
             Pokemon enemy = Allpokemon[rnd.Next(0, Allpokemon.Count)];
             Console.WriteLine($"\nYou chose {player.Name}! You are fighting {enemy.Name}!");
 
-            Console.Clear();
-
+           
             // Battle loop
             while (!player.Isfainted && !enemy.Isfainted)
             {
