@@ -127,6 +127,7 @@ namespace PokemonBattel
             // Battle loop
             while (!player.Isfainted && !enemy.Isfainted)
             {
+                Console.Clear();
                 Console.WriteLine("\n--- NEW TURN ---");
                 Console.WriteLine($"{player.Name} HP: {player.Health} | {enemy.Name} HP: {enemy.Health}");
 
